@@ -18,7 +18,7 @@ EPSILON = 0.9
 ALPHA = 0.1
 LAMBDA = 0.9
 MAX_EPISODES = 13
-FRESH_TIME = 0.1
+FRESH_TIME = 0.3
 
 def build_q_table(n_states, actions):
     table = pd.DataFrame(
