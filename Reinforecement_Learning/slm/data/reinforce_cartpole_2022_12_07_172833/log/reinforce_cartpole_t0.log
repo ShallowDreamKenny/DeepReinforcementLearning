@@ -1,0 +1,3 @@
+[2022-12-07 17:28:33,544 PID:8054 INFO logger.py info] Running sessions
+[2022-12-07 17:32:32,291 PID:8054 INFO analysis.py analyze_trial] All trial data zipped to data/reinforce_cartpole_2022_12_07_172833.zip
+[2022-12-07 17:32:32,292 PID:8054 INFO logger.py info] Trial 0 done
