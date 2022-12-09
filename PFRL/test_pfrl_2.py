@@ -74,7 +74,7 @@ agent = pfrl.agents.DoubleDQN(
 pfrl.experiments.train_agent_with_evaluation(
     agent,
     env,
-    steps=2000,           # Train the agent for 2000 steps
+    steps=20000,           # Train the agent for 2000 steps
     eval_n_steps=None,       # We evaluate for episodes, not time
     eval_n_episodes=10,       # 10 episodes are sampled for each evaluation
     train_max_episode_len=200,  # Maximum length of each episode
