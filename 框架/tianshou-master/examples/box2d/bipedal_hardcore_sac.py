@@ -20,7 +20,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', type=str, default="BipedalWalkerHardcore-v3")
     parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--buffer-size', type=int, default=1000000)
+    parser.add_argument('--buffer-size', type=int, default=10000)
     parser.add_argument('--actor-lr', type=float, default=3e-4)
     parser.add_argument('--critic-lr', type=float, default=1e-3)
     parser.add_argument('--gamma', type=float, default=0.99)
@@ -28,14 +28,14 @@ def get_args():
     parser.add_argument('--alpha', type=float, default=0.1)
     parser.add_argument('--auto-alpha', type=int, default=1)
     parser.add_argument('--alpha-lr', type=float, default=3e-4)
-    parser.add_argument('--epoch', type=int, default=100)
+    parser.add_argument('--epoch', type=int, default=50)
     parser.add_argument('--step-per-epoch', type=int, default=100000)
     parser.add_argument('--step-per-collect', type=int, default=10)
     parser.add_argument('--update-per-step', type=float, default=0.1)
-    parser.add_argument('--batch-size', type=int, default=128)
+    parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--hidden-sizes', type=int, nargs='*', default=[128, 128])
-    parser.add_argument('--training-num', type=int, default=10)
-    parser.add_argument('--test-num', type=int, default=100)
+    parser.add_argument('--training-num', type=int, default=1)
+    parser.add_argument('--test-num', type=int, default=10)
     parser.add_argument('--logdir', type=str, default='log')
     parser.add_argument('--render', type=float, default=0.)
     parser.add_argument('--n-step', type=int, default=4)
@@ -58,14 +58,14 @@ class Wrapper(gym.Wrapper):
     def step(self, action):
         rew_sum = 0.0
         for _ in range(self.action_repeat):
-            obs, rew, done, info = self.env.step(action)
+            obs, rew, done, tr, info = self.env.step(action)
             # remove done reward penalty
             if not done or not self.rm_done:
                 rew_sum = rew_sum + rew
             if done:
                 break
         # scale reward
-        return obs, self.reward_scale * rew_sum, done, info
+        return obs, self.reward_scale * rew_sum, done or tr, info
 
 
 def test_sac_bipedal(args=get_args()):
@@ -187,10 +187,14 @@ def test_sac_bipedal(args=get_args()):
     if __name__ == '__main__':
         pprint.pprint(result)
         # Let's watch its performance!
+        eval_envs = SubprocVectorEnv(
+            [lambda: gym.make(args.task, render_mode="human") for _ in range(1)]
+        )
+        eval_collector = Collector(policy, eval_envs, exploration_noise=True)
         policy.eval()
-        test_envs.seed(args.seed)
-        test_collector.reset()
-        result = test_collector.collect(n_episode=args.test_num, render=args.render)
+        eval_envs.seed(args.seed)
+        eval_collector.reset()
+        result = eval_collector.collect(n_episode=10, render=args.render)
         rews, lens = result["rews"], result["lens"]
         print(f"Final reward: {rews.mean()}, length: {lens.mean()}")
 
