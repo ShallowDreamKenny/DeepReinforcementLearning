@@ -330,7 +330,7 @@ def make_atari_env(task, seed, training_num, test_num, **kwargs):
             seed=seed,
             episodic_life=True,
             reward_clip=True,
-            stack_num=kwargs.get("frame_stack", 4),
+            stack_num=kwargs.get("frame_stack", 4), # 将最后四帧当成数据，前后有对应关系
         )
         test_envs = envpool.make_gym(
             task.replace("NoFrameskip-v4", "-v5"),
